@@ -32,6 +32,7 @@ public class UserDaoJDBCImpl implements UserDao {
                     "(`user_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
                     "`user_name` VARCHAR(50) NOT NULL, `user_lastname` VARCHAR(50) NOT NULL, " +
                     "`age` TINYINT NOT NULL)");
+            statement.close();
             conn.commit();
         } catch (SQLException throwables) {
             System.err.println("Исключение в блоке TRY при создании таблицы");
@@ -56,6 +57,7 @@ public class UserDaoJDBCImpl implements UserDao {
             conn.setAutoCommit(false);
             Statement statement = conn.createStatement();
             statement.execute("DROP TABLE IF EXISTS users");
+            statement.close();
             conn.commit();
         } catch (SQLException throwables) {
             System.err.println("Исключение в блоке TRY при удалении таблицы");
@@ -86,6 +88,7 @@ public class UserDaoJDBCImpl implements UserDao {
             if (preparedStatement.execute()) {
                 System.out.println("User с именем – " + name + " добавлен в базу данных");
             }
+            preparedStatement.close();
             conn.commit();
         } catch (SQLException throwables) {
             System.err.println("Исключение в блоке TRY при сохранении user");
@@ -110,6 +113,7 @@ public class UserDaoJDBCImpl implements UserDao {
             conn.setAutoCommit(false);
             PreparedStatement ps = conn.prepareStatement("DELETE FROM users WHERE id=?");
             ps.setLong(1, id);
+            ps.close();
             conn.commit();
         } catch (SQLException throwables) {
             System.err.println("Исключение в блоке TRY при removeUserById");
@@ -135,7 +139,8 @@ public class UserDaoJDBCImpl implements UserDao {
         List<User> list = new ArrayList<>();
         try {
             conn.setAutoCommit(false);
-            ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM users");
+            Statement statement = conn.createStatement();
+            ResultSet rs = statement.executeQuery("SELECT * FROM users");
             while (rs.next()) {
                 User user = new User();
                 user.setId(rs.getLong("user_id"));
@@ -144,6 +149,7 @@ public class UserDaoJDBCImpl implements UserDao {
                 user.setAge(rs.getByte("age"));
                 list.add(user);
             }
+            statement.close();
             conn.commit();
         } catch (SQLException throwables) {
             System.err.println("Исключение в блоке TRY при getAllUsers");
@@ -169,6 +175,7 @@ public class UserDaoJDBCImpl implements UserDao {
         try {
             conn.setAutoCommit(false);
             conn.createStatement().execute("TRUNCATE TABLE users");
+            conn.createStatement().close();
             conn.commit();
         } catch (SQLException throwables) {
             System.err.println("Исключение в блоке TRY при cleanUsersTable");
